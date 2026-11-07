@@ -112,6 +112,7 @@ body{padding-bottom:46px!important}
 .step{font-size:.92rem}.step b.l{width:32px;height:32px;font-size:.95rem}
 body{background:radial-gradient(900px 320px at 50% -80px,var(--soft),transparent 70%),var(--bg)}
 .view-in{animation:fadeup .35s ease both}@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.gtabs{display:flex;gap:8px;overflow-x:auto;margin:14px -4px 4px;padding:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.gtabs::-webkit-scrollbar{display:none}.gtabs button{flex:0 0 auto;white-space:nowrap;border:1.5px solid var(--line);background:var(--card);color:inherit;font:inherit;font-weight:600;font-size:.88rem;padding:9px 14px;border-radius:999px;cursor:pointer}.gtabs button.on{background:var(--g);border-color:var(--g);color:#fff;box-shadow:0 4px 12px color-mix(in srgb,var(--g) 35%,transparent)}
 h3.gh{border-left:4px solid var(--g);padding-left:10px;margin:22px 0 10px;font-size:.95rem}
 .grid .pc{border:1px solid var(--line);box-shadow:0 2px 10px rgba(30,20,10,.05);border-radius:18px;padding:12px 12px 13px}
 .grid .pc:hover{border-color:var(--g);box-shadow:0 8px 20px rgba(30,20,10,.1)}
@@ -1455,7 +1456,7 @@ const _meta = (document.querySelector('meta[name="h2h-lang"]')||{}).content;
 let LANG = (_qs||_meta)==="hi" ? "hi" : "en";
 const isHi = () => LANG==="hi";
 const u = k => UI[k][isHi()?1:0];
-const state = {tab:"people",pid:null,oid:null,pr:null,style:null,mood:null,rel:null};
+const state = {tab:"people",grp:1,pid:null,oid:null,pr:null,style:null,mood:null,rel:null};
 const TABS = [["people","👥","tPeople"],["occ","✨","tOcc"],["practice","🎭","tPractice"],["read","🔎","tRead"],["tools","🧰","tTools"]];
 const isEmbed = t => t==="letters"||t==="career";
 const shuffle = a => { const b=a.slice(); for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]} return b; };
@@ -1524,12 +1525,19 @@ function occDetail(o0){
   <div class="cols"><div class="card do">${lbl("✅",u("sDo").replace("✅ ",""))}${li(o.dos,"ticks")}</div><div class="card dont">${lbl("🚫",u("sDont").replace("🚫 ",""))}${li(o.donts,"crosses")}</div></div>
   <div class="card mind">${lbl("💛",u("oEmp").replace("💛 ",""))}<p>${o.emp}</p></div></div>`;
 }
-function groupedGrid(tab,withTag){
+const GORDER = [1,0,2,3,4]; /* Work & learning (Senior / Boss) first */
+function setGrp(i){ state.grp=i; render(); }
+function groupedGrid(tab,withTag,asTabs){
+  if(asTabs){
+    const gi = GORDER.includes(state.grp)?state.grp:GORDER[0], g=GROUPS[gi];
+    return `<div class="gtabs" role="tablist">${GORDER.map(i=>`<button role="tab" class="${i===gi?"on":""}" style="--g:${GCOL[i]}" onclick="setGrp(${i})">${gname(i)}</button>`).join("")}</div>`+
+    `<div class="grid view-in" style="--g:${GCOL[gi]}">${g[1].map(id=>LP(byId[id])).map(p=>`<button class="pc" onclick="go('${tab}','${p.id}')"><div class="em">${p.em}</div><strong>${p.name}</strong>${withTag?`<small>${p.tag}</small>`:""}</button>`).join("")}</div>`;
+  }
   return GROUPS.map((g,gi)=>`<h3 class="gh" style="--g:${GCOL[gi]}">${gname(gi)}</h3><div class="grid" style="--g:${GCOL[gi]}">${g[1].map(id=>LP(byId[id])).map(p=>`<button class="pc" onclick="go('${tab}','${p.id}')"><div class="em">${p.em}</div><strong>${p.name}</strong>${withTag?`<small>${p.tag}</small>`:""}</button>`).join("")}</div>`).join("");
 }
 function peopleList(){
   return `<p class="sub sm" style="margin:12px 0 4px">${u("whoH")}</p>
-  ${groupedGrid("people",true)}
+  ${groupedGrid("people",true,true)}
   <div class="card mind"><strong>${u("golden")}</strong><p>${u("goldenTxt")}</p></div>`;
 }
 function hero(em,name,tag){ return `<div class="hero"><div class="hero-em">${em}</div><div><div class="hero-name">${name}</div>${tag?`<span class="hero-tag">${tag}</span>`:""}</div></div>`; }
