@@ -118,6 +118,11 @@ h3.gh{border-left:4px solid var(--g);padding-left:10px;margin:22px 0 10px;font-s
 .grid .pc:hover{border-color:var(--g);box-shadow:0 8px 20px rgba(30,20,10,.1)}
 .pc .em{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:1.6rem;margin-bottom:8px;background:color-mix(in srgb,var(--g) 14%,var(--card))}
 .pc strong{font-size:.95rem;line-height:1.25}
+.grid{gap:8px}
+.grid .pc{padding:9px 10px 10px;border-radius:15px}
+.pc .em{width:36px;height:36px;border-radius:11px;font-size:1.25rem;margin-bottom:5px}
+.pc strong{font-size:.88rem;margin-top:2px}
+.pc small{font-size:.74rem;line-height:1.25}
 .detail .hero{background:linear-gradient(135deg,color-mix(in srgb,var(--g) 26%,var(--card)),color-mix(in srgb,var(--g) 7%,var(--card)));border:1px solid color-mix(in srgb,var(--g) 28%,transparent);padding:18px 16px}
 .detail .hero-em{width:66px;height:66px;font-size:2.1rem;box-shadow:0 0 0 5px color-mix(in srgb,var(--g) 22%,transparent),0 4px 12px rgba(0,0,0,.1)}
 .detail .hero-name{font-size:1.3rem}
@@ -162,6 +167,19 @@ main.embedded{max-width:none;padding:0}
 #topbar nav{border-top:1px solid var(--line)}
 .emb{display:block;width:100%;border:0;background:#fff}
 .note{font-size:.8rem;color:var(--mute);margin-top:18px;text-align:center}
+/* bottom tabs + people group tabs in tab-bar style */
+#btabs{display:none}
+@media(max-width:700px){
+#tabs .bt{display:none}
+#btabs{display:flex;position:fixed;top:auto;left:0;right:0;bottom:var(--fh,34px);z-index:9;justify-content:center;overflow:visible;gap:2px;padding:4px 6px;background:var(--card);border-top:1px solid var(--line);box-shadow:0 -2px 8px rgba(0,0,0,.05)}
+#btabs::before,#btabs::after{display:none}
+#btabs button{flex:1;max-width:none}
+main:not(.embedded){padding-bottom:120px}
+}
+.gtabs{display:flex;gap:2px;overflow-x:auto;margin:12px 0 10px;padding:6px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.gtabs button{flex:1 0 auto;min-width:76px;max-width:110px;border:0;background:none;color:var(--mute);font:inherit;font-size:.68rem;font-weight:500;line-height:1.2;padding:6px 6px;border-radius:12px;box-shadow:none;white-space:normal;text-align:center;cursor:pointer}
+.gtabs button b{display:block;font-size:1.3rem;font-weight:400;line-height:1.3}
+.gtabs button.on{color:var(--acc);background:var(--soft);font-weight:600;border:0;box-shadow:none}
 </style>
 </head>
 <body>
@@ -172,6 +190,7 @@ main.embedded{max-width:none;padding:0}
 <div id="topbar"><div id="modes"></div><nav id="tabs"></nav></div>
 <main id="view"></main>
 
+<nav id="btabs"></nav>
 <footer id="foot"></footer>
 <script>
 /* ---------- DATA ---------- */
@@ -1463,7 +1482,7 @@ const _meta = (document.querySelector('meta[name="h2h-lang"]')||{}).content;
 let LANG = (_qs||_meta)==="hi" ? "hi" : "en";
 const isHi = () => LANG==="hi";
 const u = k => UI[k][isHi()?1:0];
-const state = {tab:(location.hash==="#write"?"letters":location.hash==="#speak"?"speak":"people"),lastRead:"people",grp:1,pid:null,oid:null,pr:null,style:null,mood:null,rel:null};
+const state = {tab:(location.hash==="#write"?"letters":location.hash==="#speak"?"speak":"people"),lastRead:"people",grp:1,ogrp:3,pid:null,oid:null,pr:null,style:null,mood:null,rel:null};
 const TABS = [["people","👥","tPeople"],["occ","✨","tOcc"],["practice","🎭","tPractice"],["read","🔎","tRead"],["tools","🧰","tTools"]];
 const isEmbed = t => t==="letters"||t==="speak"||t==="career";
 const shuffle = a => { const b=a.slice(); for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]} return b; };
@@ -1503,7 +1522,11 @@ function renderChrome(){
   $("#foot").textContent = u("disclaimer");
   $("#lang").innerHTML = `<button class="${!isHi()?"on":""}" title="English" onclick="setLang('en')">EN</button><button class="${isHi()?"on":""}" title="हिंग्लिश" onclick="setLang('hi')">हिं</button>`;
   { const t=state.tab, m=t==="letters"?"write":t==="speak"?"speak":"read"; $("#modes").innerHTML=`<div class="seg2" role="tablist">${[["read","mRead"],["write","mWrite"],["speak","mSpeak"]].map(x=>`<button role="tab" class="${m===x[0]?"on":""}" onclick="setMode('${x[0]}')">${u(x[1])}</button>`).join("")}</div>`; $("#tabs").style.display=isEmbed(t)?"none":""; }
-  $("#tabs").innerHTML = TABS.map(t=>`<button class="${state.tab===t[0]?"on":""}" onclick="go('${t[0]}')"><b>${t[1]}</b>${u(t[2])}</button>`).join("");
+  const tbtn=(t,i,c)=>`<button class="${state.tab===t[0]?"on":""}${c&&i>=2?" bt":""}" onclick="go('${t[0]}')"><b>${t[1]}</b>${u(t[2])}</button>`;
+  $("#tabs").innerHTML = TABS.map((t,i)=>tbtn(t,i,true)).join("");
+  $("#btabs").innerHTML = TABS.map((t,i)=>i>=2?tbtn(t,i,false):"").join("");
+  $("#btabs").style.display = isEmbed(state.tab)?"none":"";
+  document.documentElement.style.setProperty("--fh", $("#foot").offsetHeight+"px");
   { const nv=$("#tabs"), on=nv.querySelector(".on"); if(on) nv.scrollLeft = on.offsetLeft-(nv.clientWidth-on.offsetWidth)/2; }
 }
 
@@ -1518,7 +1541,9 @@ function fallbackCopy(done){ try{ const t=document.createElement("textarea"); t.
 
 /* ---------- VIEWS ---------- */
 function occList(){
-  return `<h2 class="sm">${u("occH")}</h2><p class="sub sm">${u("occSub")}</p>`+OGROUPS.map((g,gi)=>`<h3 class="gh" style="--g:${GCOL[gi]}">${ogname(gi)}</h3><div class="grid" style="--g:${GCOL[gi]}">${g[1].map(id=>LO(oById[id])).map(o=>`<button class="pc" onclick="go('occ','${o.id}')"><div class="em">${o.em}</div><strong>${o.name}</strong><small>${o.tag}</small></button>`).join("")}</div>`).join("");
+  const gi = OORDER.includes(state.ogrp)?state.ogrp:OORDER[0], g=OGROUPS[gi];
+  const tabs = `<div class="gtabs" role="tablist">${OORDER.map(i=>{const nm=ogname(i),sp=nm.indexOf(" ");return `<button role="tab" class="${i===gi?"on":""}" style="--g:${GCOL[i]}" onclick="setOGrp(${i})"><b>${nm.slice(0,sp)}</b>${nm.slice(sp+1)}</button>`}).join("")}</div>`;
+  return `<h2 class="sm">${u("occH")}</h2><p class="sub sm">${u("occSub")}</p>`+tabs+`<div class="grid view-in" style="--g:${GCOL[gi]}">${g[1].map(id=>LO(oById[id])).map(o=>`<button class="pc" onclick="go('occ','${o.id}')"><div class="em">${o.em}</div><strong>${o.name}</strong><small>${o.tag}</small></button>`).join("")}</div>`;
 }
 function occDetail(o0){
   const o=LO(o0); _script=o.script.join("\n");
@@ -1534,12 +1559,14 @@ function occDetail(o0){
   <div class="cols"><div class="card do">${lbl("✅",u("sDo").replace("✅ ",""))}${li(o.dos,"ticks")}</div><div class="card dont">${lbl("🚫",u("sDont").replace("🚫 ",""))}${li(o.donts,"crosses")}</div></div>
   <div class="card mind">${lbl("💛",u("oEmp").replace("💛 ",""))}<p>${o.emp}</p></div></div>`;
 }
-const GORDER = [1,0,2,3,4]; /* Work & learning (Senior / Boss) first */
+const GORDER = [1,4,3,2,0]; /* Work, Handle with care, Friends, Day-to-day, Family */
+const OORDER = [3,0,2,1]; /* Everyday, Career, Personal, Meetings */
+function setOGrp(i){ state.ogrp=i; render(); } /* Work & learning (Senior / Boss) first */
 function setGrp(i){ state.grp=i; render(); }
 function groupedGrid(tab,withTag,asTabs){
   if(asTabs){
     const gi = GORDER.includes(state.grp)?state.grp:GORDER[0], g=GROUPS[gi];
-    return `<div class="gtabs" role="tablist">${GORDER.map(i=>`<button role="tab" class="${i===gi?"on":""}" style="--g:${GCOL[i]}" onclick="setGrp(${i})">${gname(i)}</button>`).join("")}</div>`+
+    return `<div class="gtabs" role="tablist">${GORDER.map(i=>{const nm=gname(i),sp=nm.indexOf(" ");return `<button role="tab" class="${i===gi?"on":""}" style="--g:${GCOL[i]}" onclick="setGrp(${i})"><b>${nm.slice(0,sp)}</b>${nm.slice(sp+1)}</button>`}).join("")}</div>`+
     `<div class="grid view-in" style="--g:${GCOL[gi]}">${g[1].map(id=>LP(byId[id])).map(p=>`<button class="pc" onclick="go('${tab}','${p.id}')"><div class="em">${p.em}</div><strong>${p.name}</strong>${withTag?`<small>${p.tag}</small>`:""}</button>`).join("")}</div>`;
   }
   return GROUPS.map((g,gi)=>`<h3 class="gh" style="--g:${GCOL[gi]}">${gname(gi)}</h3><div class="grid" style="--g:${GCOL[gi]}">${g[1].map(id=>LP(byId[id])).map(p=>`<button class="pc" onclick="go('${tab}','${p.id}')"><div class="em">${p.em}</div><strong>${p.name}</strong>${withTag?`<small>${p.tag}</small>`:""}</button>`).join("")}</div>`).join("");
