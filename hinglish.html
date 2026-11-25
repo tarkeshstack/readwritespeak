@@ -330,6 +330,31 @@ details.more .card{border:0;padding:6px 0;margin:8px 0;background:none}
 .em3{margin:8px 0 2px;display:grid;gap:6px}.em3>div{display:flex;gap:8px;align-items:flex-start;font-size:.82rem;line-height:1.35}.em3 i{flex:none;width:18px;height:18px;border-radius:50%;background:var(--good);color:#fff;font-style:normal;font-size:.62rem;font-weight:700;display:grid;place-items:center;margin-top:1px}.em3 i.x{background:var(--bad)}.em3 b{color:var(--mute);margin-right:3px}
 .whob{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin:0 0 4px}.th2{background:var(--soft);border-radius:14px;padding:10px 13px;font-size:.88rem;line-height:1.4}.th2 b{display:block;color:var(--acc);font-size:.72rem;margin-bottom:2px}
 .scn .art{height:auto!important;aspect-ratio:360/210}.story,.tiles,.more3{max-width:560px;margin-left:auto;margin-right:auto}.story{display:flex}
+/* desktop: full width, controls on top */
+@media(min-width:900px){
+body{display:flex;flex-direction:column;min-height:100vh}
+header{max-width:none;width:100%;padding:14px 40px 6px;order:0}
+.lang{right:40px;top:18px}
+#hud{order:1}
+#btabs{order:2;position:sticky!important;top:0!important;bottom:auto!important;left:auto;right:auto;justify-content:flex-start;gap:6px;padding:8px 40px;border-top:0;border-bottom:1px solid var(--line);z-index:30}
+#btabs button{flex:0 0 auto;flex-direction:row;gap:8px;padding:9px 18px;font-size:.88rem;border-radius:999px}
+#btabs button.on{background:var(--soft)}
+#btabs button svg{width:20px;height:20px}
+main{order:3;max-width:none!important;width:100%;padding:18px 40px 70px!important}
+main.embedded{padding:0!important}
+footer#foot{order:4}
+.story{max-width:none!important;display:grid!important;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:18px}
+.tiles,.more3{max-width:760px;margin-left:0!important}
+.hq{font-size:2rem}
+.exr{max-width:900px}
+.detail,.cl,.snap{max-width:1000px}
+.snap>.sc{flex-basis:360px}
+.gtabs{max-width:900px}
+.cta{position:static;max-width:1000px;background:none;backdrop-filter:none;padding:0;margin:12px 0}
+.cta .btn{flex:0 0 auto;padding:13px 28px}
+.grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+#toast{bottom:70px}
+}
 </style>
 </head>
 <body>
