@@ -355,6 +355,7 @@ footer#foot{order:4}
 .grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
 #toast{bottom:70px}
 }
+.grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}@media(min-width:900px){.grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))!important;gap:12px}.gh{max-width:none}.exr{max-width:none}.exr{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}}
 </style>
 </head>
 <body>
@@ -1726,9 +1727,11 @@ function fallbackCopy(done){ try{ const t=document.createElement("textarea"); t.
 
 /* ---------- VIEWS ---------- */
 function occList(){
+  const card=o=>`<button class="pc" onclick="go('occ','${o.id}')"><div class="em">${o.em}</div><strong>${o.name}</strong><small>${o.tag}</small></button>`;
+  if(isWide()) return talkSeg("occ")+searchBox()+`<div id="gwrap">`+OORDER.map(i=>`<h3 class="gh" style="--g:var(--acc)">${ogname(i)}</h3><div class="grid">${OGROUPS[i][1].map(id=>card(LO(oById[id]))).join("")}</div>`).join("")+`</div>`;
   const gi = OORDER.includes(state.ogrp)?state.ogrp:OORDER[0], g=OGROUPS[gi];
   const tabs = `<div class="gtabs" role="tablist">${OORDER.map(i=>{const nm=ogname(i),sp=nm.indexOf(" ");return `<button role="tab" class="${i===gi?"on":""}" onclick="setOGrp(${i})"><b>${nm.slice(0,sp)}</b>${nm.slice(sp+1)}</button>`}).join("")}</div>`;
-  return talkSeg("occ")+searchBox()+`<div id="gwrap">`+tabs+`<div class="grid view-in">${g[1].map(id=>LO(oById[id])).map(o=>`<button class="pc" onclick="go('occ','${o.id}')"><div class="em">${o.em}</div><strong>${o.name}</strong><small>${o.tag}</small></button>`).join("")}</div></div>`;
+  return talkSeg("occ")+searchBox()+`<div id="gwrap">`+tabs+`<div class="grid view-in">${g[1].map(id=>card(LO(oById[id]))).join("")}</div></div>`;
 }
 function occDetail(o0){
   const o=LO(o0); _script=o.script.join("\n");
@@ -1744,8 +1747,9 @@ const GORDER = [1,4,3,2,0]; /* Work, Handle with care, Friends, Day-to-day, Fami
 const OORDER = [3,0,2,1]; /* Everyday, Career, Personal, Meetings */
 function setOGrp(i){ state.ogrp=i; render(); } /* Work & learning (Senior / Boss) first */
 function setGrp(i){ state.grp=i; render(); }
+const isWide=()=>window.matchMedia&&matchMedia('(min-width:900px)').matches;
 function groupedGrid(tab,withTag,asTabs){
-  if(asTabs){
+  if(asTabs&&!isWide()){
     const gi = GORDER.includes(state.grp)?state.grp:GORDER[0], g=GROUPS[gi];
     return `<div class="gtabs" role="tablist">${GORDER.map(i=>{const nm=gname(i),sp=nm.indexOf(" ");return `<button role="tab" class="${i===gi?"on":""}" style="--g:${GCOL[i]}" onclick="setGrp(${i})"><b>${nm.slice(0,sp)}</b>${nm.slice(sp+1)}</button>`}).join("")}</div>`+
     `<div class="grid view-in" style="--g:${GCOL[gi]}">${g[1].map(id=>LP(byId[id])).map(p=>`<button class="pc" onclick="go('${tab}','${p.id}')"><div class="em">${p.em}</div><strong>${p.name}</strong>${withTag?`<small>${p.tag}</small>`:""}</button>`).join("")}</div>`;
@@ -1965,6 +1969,7 @@ function sizeEmbed(){ const f=document.getElementById("emb"); if(!f) return; con
 function embedView(id){ return `<iframe id="emb" class="emb" title="${id==="letters"?"Letter Hub":id==="speak"?"Wordly":"College to Corporate"}" allow="clipboard-write; web-share; fullscreen; microphone; autoplay"></iframe>`; }
 function mountEmbed(id){ const f=document.getElementById("emb"); sizeEmbed(); f.srcdoc=b64text(EMB[id]); }
 window.addEventListener("resize",sizeEmbed);
+let _wd=isWide(); window.addEventListener("resize",()=>{ const w=isWide(); if(w!==_wd){ _wd=w; if((state.tab==="people"&&!state.pid)||(state.tab==="occ"&&!state.oid)||state.tab==="home") render(); } });
 function render(){
   renderChrome(); navChrome();
   view.classList.toggle("embedded",isEmbed(state.tab));
